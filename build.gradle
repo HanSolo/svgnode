@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.7'
+}
+
+group 'eu.hansolo.fx'
+version '1.0-SNAPSHOT'
+
+ext {
+    appName         = "SvgNode"
+    appLauncher     = "SvgNode"
+    appPackaging    = "SvgNode"
+    appModuleName   = "svgnode"
+    appMainClass    = "eu.hansolo.fx.Test"
+}
+
+mainClassName = "${ext.appModuleName}/${ext.appMainClass}"
+
+javafx {
+    modules = [ "javafx.base", "javafx.graphics", "javafx.controls" ]
+}
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}
+
+jar {
+    manifest {
+        attributes(
+                'Build-Timestamp'   : new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").format(new Date()),
+                'Build-Tool'        : "Gradle ${gradle.gradleVersion}",
+                'Build-Jdk'         : "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                'Build-OS'          : "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}",
+                'Application-Version': version,
+                //'Git-Revision'      : gitRevision,
+                //'Git-Abb-Revision'  : gitAbbRevision
+        )
+    }
+}
