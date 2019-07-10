@@ -12,7 +12,7 @@ ext {
     appLauncher     = "SvgNode"
     appPackaging    = "SvgNode"
     appModuleName   = "svgnode"
-    appMainClass    = "eu.hansolo.fx.Test"
+    appMainClass    = "eu.hansolo.fx.Demo"
 }
 
 mainClassName = "${ext.appModuleName}/${ext.appMainClass}"

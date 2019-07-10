@@ -57,9 +57,10 @@ public class SvgNode extends Region {
         this(Arrays.asList(shapes));
     }
     public SvgNode(final List<SvgPath> shapes) {
-        getStylesheets().add(SvgNode.class.getResource("svg-node.css").toExternalForm());
+        //getStylesheets().add(SvgNode.class.getResource("svg-node.css").toExternalForm());
 
         this.shapes = FXCollections.observableArrayList(shapes);
+        this.dirtyListener = (o, ov, nv) -> redraw();
 
         initGraphics();
         registerListeners();
@@ -103,16 +104,14 @@ public class SvgNode extends Region {
 
 
     // ******************** Methods *******************************************
-    @Override public void layoutChildren() {
-        super.layoutChildren();
-    }
-
     @Override protected double computeMinWidth(final double HEIGHT) { return MINIMUM_WIDTH; }
     @Override protected double computeMinHeight(final double WIDTH) { return MINIMUM_HEIGHT; }
     @Override protected double computePrefWidth(final double HEIGHT) { return super.computePrefWidth(HEIGHT); }
     @Override protected double computePrefHeight(final double WIDTH) { return super.computePrefHeight(WIDTH); }
     @Override protected double computeMaxWidth(final double HEIGHT) { return MAXIMUM_WIDTH; }
     @Override protected double computeMaxHeight(final double WIDTH) { return MAXIMUM_HEIGHT; }
+
+    public ObservableList<SvgPath> getShapes() { return shapes; }
 
 
     // ******************** Resizing ******************************************
