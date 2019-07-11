@@ -54,6 +54,7 @@ public class Demo extends Application {
 
         svgNode = new SvgNode(svgPath1, svgPath2);
         svgNode.setPrefSize(400, 400);
+        svgNode.setCanvasDimension(400, 400);
     }
 
     @Override public void start(Stage stage) {

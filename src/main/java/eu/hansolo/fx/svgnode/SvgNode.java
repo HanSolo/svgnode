@@ -20,6 +20,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Dimension2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Region;
@@ -113,6 +114,12 @@ public class SvgNode extends Region {
 
     public ObservableList<SvgPath> getShapes() { return shapes; }
 
+    public Dimension2D getCanvasDimension() { return new Dimension2D(canvas.getWidth(), canvas.getHeight()); }
+    public void setCanvasDimension(final double width, final double height) {
+        canvas.setWidth(width);
+        canvas.setHeight(height);
+    }
+
 
     // ******************** Resizing ******************************************
     private void resize() {
@@ -121,9 +128,13 @@ public class SvgNode extends Region {
         size   = width < height ? width : height;
 
         if (width > 0 && height > 0) {
-            canvas.setWidth(width);
-            canvas.setHeight(height);
-            canvas.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
+            double scaleX = width / canvas.getWidth();
+            double scaleY = height / canvas.getHeight();
+
+            canvas.setScaleX(scaleX);
+            canvas.setScaleY(scaleY);
+            canvas.setTranslateX((canvas.getWidth() * scaleX - canvas.getWidth()) / 2);
+            canvas.setTranslateY((canvas.getHeight() * scaleY - canvas.getHeight()) / 2);
 
             redraw();
         }
