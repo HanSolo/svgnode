@@ -124,10 +124,8 @@ public class SvgNode extends Region {
         size   = width < height ? width : height;
 
         if (width > 0 && height > 0) {
-            if (canvas.getWidth() == Region.USE_PREF_SIZE && canvas.getHeight() == Region.USE_PREF_SIZE) {
-                canvas.setWidth(width);
-                canvas.setHeight(height);
-            }
+            if (canvas.getWidth() == Region.USE_PREF_SIZE) { canvas.setWidth(width); }
+            if (canvas.getHeight() == Region.USE_PREF_SIZE) { canvas.setHeight(height); }
 
             scaleX = width / canvas.getWidth();
             scaleY = height / canvas.getHeight();
