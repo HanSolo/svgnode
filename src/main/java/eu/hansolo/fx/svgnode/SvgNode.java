@@ -47,6 +47,8 @@ public class SvgNode extends Region {
     private              Canvas                  canvas;
     private              GraphicsContext         ctx;
     private              ObservableList<SvgPath> shapes;
+    private              double                  scaleX;
+    private              double                  scaleY;
     private              ChangeListener<Boolean> dirtyListener;
 
 
@@ -60,7 +62,9 @@ public class SvgNode extends Region {
     public SvgNode(final List<SvgPath> shapes) {
         //getStylesheets().add(SvgNode.class.getResource("svg-node.css").toExternalForm());
 
-        this.shapes = FXCollections.observableArrayList(shapes);
+        this.shapes        = FXCollections.observableArrayList(shapes);
+        this.scaleX        = 1.0;
+        this.scaleY        = 1.0;
         this.dirtyListener = (o, ov, nv) -> redraw();
 
         initGraphics();
@@ -70,17 +74,9 @@ public class SvgNode extends Region {
 
     // ******************** Initialization ************************************
     private void initGraphics() {
-        if (Double.compare(getPrefWidth(), 0.0) <= 0 || Double.compare(getPrefHeight(), 0.0) <= 0 || Double.compare(getWidth(), 0.0) <= 0 ||
-            Double.compare(getHeight(), 0.0) <= 0) {
-            if (getPrefWidth() > 0 && getPrefHeight() > 0) {
-                setPrefSize(getPrefWidth(), getPrefHeight());
-            } else {
-                setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT);
-            }
-        }
+        setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT);
 
         getStyleClass().setAll("svg-node");
-
         canvas = new Canvas(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         ctx    = canvas.getGraphicsContext2D();
 
@@ -128,8 +124,13 @@ public class SvgNode extends Region {
         size   = width < height ? width : height;
 
         if (width > 0 && height > 0) {
-            double scaleX = width / canvas.getWidth();
-            double scaleY = height / canvas.getHeight();
+            if (canvas.getWidth() == Region.USE_PREF_SIZE && canvas.getHeight() == Region.USE_PREF_SIZE) {
+                canvas.setWidth(width);
+                canvas.setHeight(height);
+            }
+
+            scaleX = width / canvas.getWidth();
+            scaleY = height / canvas.getHeight();
 
             canvas.setScaleX(scaleX);
             canvas.setScaleY(scaleY);
