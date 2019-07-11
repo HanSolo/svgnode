@@ -20,6 +20,8 @@ import javafx.application.Application;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
+import javafx.scene.shape.StrokeLineJoin;
 import javafx.stage.Stage;
 import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
@@ -50,6 +52,8 @@ public class Demo extends Application {
                                  .stroke(Color.PURPLE)
                                  .strokeWidth(1)
                                  //.effect(new DropShadow(BlurType.TWO_PASS_BOX, Color.rgb(0, 0, 0, 0.65), 2, 0.0, 0, 0))
+                                 .lineJoin(StrokeLineJoin.BEVEL)
+                                 .lineCap(StrokeLineCap.ROUND)
                                  .build();
 
         svgNode = new SvgNode(svgPath1, svgPath2);
