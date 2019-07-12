@@ -37,10 +37,12 @@ import java.util.List;
 public class SvgNode extends Region {
     private static final double                  PREFERRED_WIDTH  = -1;
     private static final double                  PREFERRED_HEIGHT = -1;
-    private static final double                  MINIMUM_WIDTH    = 50;
-    private static final double                  MINIMUM_HEIGHT   = 50;
+    private static final double                  MINIMUM_WIDTH    = 5;
+    private static final double                  MINIMUM_HEIGHT   = 5;
     private static final double                  MAXIMUM_WIDTH    = 4096;
     private static final double                  MAXIMUM_HEIGHT   = 4096;
+    private static       double                  aspectRatio;
+    private              boolean                 keepAspect;
     private              double                  size;
     private              double                  width;
     private              double                  height;
@@ -57,14 +59,13 @@ public class SvgNode extends Region {
         this(new SvgPath[]{});
     }
     public SvgNode(final SvgPath... shapes) {
-        this(Arrays.asList(shapes));
+        this(true, Arrays.asList(shapes));
     }
-    public SvgNode(final List<SvgPath> shapes) {
-        //getStylesheets().add(SvgNode.class.getResource("svg-node.css").toExternalForm());
-
+    public SvgNode(final boolean keepAspect, final List<SvgPath> shapes) {
         this.shapes        = FXCollections.observableArrayList(shapes);
         this.scaleX        = 1.0;
         this.scaleY        = 1.0;
+        this.keepAspect    = keepAspect;
         this.dirtyListener = (o, ov, nv) -> redraw();
 
         initGraphics();
@@ -76,7 +77,6 @@ public class SvgNode extends Region {
     private void initGraphics() {
         setPrefSize(PREFERRED_WIDTH, PREFERRED_HEIGHT);
 
-        getStyleClass().setAll("svg-node");
         canvas = new Canvas(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         ctx    = canvas.getGraphicsContext2D();
 
@@ -116,6 +116,12 @@ public class SvgNode extends Region {
         canvas.setHeight(height);
     }
 
+    public boolean getKeepAspect() { return keepAspect; }
+    public void setKeepAspect(final boolean keepAspect) {
+        this.keepAspect = keepAspect;
+        resize();
+    }
+
 
     // ******************** Resizing ******************************************
     private void resize() {
@@ -126,9 +132,22 @@ public class SvgNode extends Region {
         if (width > 0 && height > 0) {
             if (canvas.getWidth() == Region.USE_PREF_SIZE) { canvas.setWidth(width); }
             if (canvas.getHeight() == Region.USE_PREF_SIZE) { canvas.setHeight(height); }
+            if (canvas.getWidth() != Region.USE_PREF_SIZE && canvas.getHeight() != Region.USE_PREF_SIZE) {
+                aspectRatio = canvas.getHeight() / canvas.getWidth();
+            }
+
+            if (keepAspect) {
+                if (aspectRatio * width > height) {
+                    width = 1 / (aspectRatio / height);
+                } else if (1 / (aspectRatio / height) > width) {
+                    height = aspectRatio * width;
+                }
+            }
 
             scaleX = width / canvas.getWidth();
             scaleY = height / canvas.getHeight();
+
+            canvas.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
 
             canvas.setScaleX(scaleX);
             canvas.setScaleY(scaleY);
