@@ -43,6 +43,7 @@ public class SvgNode extends Region {
     private static final double                  MAXIMUM_HEIGHT   = 4096;
     private static       double                  aspectRatio;
     private              boolean                 keepAspect;
+    private              boolean                 dirty;
     private              double                  size;
     private              double                  width;
     private              double                  height;
@@ -66,6 +67,7 @@ public class SvgNode extends Region {
         this.scaleX        = 1.0;
         this.scaleY        = 1.0;
         this.keepAspect    = keepAspect;
+        this.dirty         = true;
         this.dirtyListener = (o, ov, nv) -> redraw();
 
         initGraphics();
@@ -154,16 +156,16 @@ public class SvgNode extends Region {
             canvas.setTranslateX((canvas.getWidth() * scaleX - canvas.getWidth()) / 2);
             canvas.setTranslateY((canvas.getHeight() * scaleY - canvas.getHeight()) / 2);
 
-            redraw();
+            if (dirty) { redraw(); }
         }
     }
 
     private void redraw() {
         ctx.clearRect(0, 0, width, height);
-
         shapes.forEach(svgPath -> {
             svgPath.draw(ctx);
             svgPath.dirtyReset();
         });
+        dirty = false;
     }
 }
