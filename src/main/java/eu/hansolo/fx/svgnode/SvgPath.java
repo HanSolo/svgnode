@@ -32,6 +32,7 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.FillRule;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
+import javafx.scene.transform.Affine;
 
 
 public class SvgPath {
@@ -313,8 +314,8 @@ public class SvgPath {
                         break;
                     case 'm':
                         if (elementCount > 0) {
-                            x = p.f() - lastX;
-                            y = p.f() - lastY;
+                            x = p.f() + lastX;
+                            y = p.f() + lastY;
                             ctx.moveTo(x, y); // move relative
                             lastX = x;
                             lastY = y;
@@ -326,9 +327,9 @@ public class SvgPath {
                             lastY = y;
                         }
                         while (p.nextIsNumber()) {
-                            x = p.f() - lastX;
-                            y = p.f() - lastY;
-                            ctx.lineTo(p.f(), p.f()); // move relative
+                            x = p.f() + lastX;
+                            y = p.f() + lastY;
+                            ctx.lineTo(x, y); // move relative
                             lastX = x;
                             lastY = y;
                         }
@@ -346,8 +347,8 @@ public class SvgPath {
                         break;
                     case 'l':
                         do {
-                            x = p.f() - lastX;
-                            y = p.f() - lastY;
+                            x = p.f() + lastX;
+                            y = p.f() + lastY;
                             ctx.lineTo(x, y); // move relative
                             lastX = x;
                             lastY = y;
@@ -364,7 +365,7 @@ public class SvgPath {
                         break;
                     case 'h':
                         do {
-                            x = p.f();
+                            x = p.f() + lastX;
                             ctx.lineTo(x, lastY); // move relative
                             lastX = x;
                         } while (p.nextIsNumber());
@@ -380,7 +381,7 @@ public class SvgPath {
                         break;
                     case 'v':
                         do {
-                            y = p.f();
+                            y = p.f() + lastY;
                             ctx.lineTo(lastX, y); // move relative
                             lastY = y;
                         } while (p.nextIsNumber());
@@ -402,10 +403,10 @@ public class SvgPath {
                         break;
                     case 'q':
                         do {
-                            c1x = p.f() - lastC1X;
-                            c1y = p.f() - lastC1Y;
-                            x = p.f() - lastX;
-                            y = p.f() - lastY;
+                            c1x = p.f() + lastX;
+                            c1y = p.f() + lastY;
+                            x = p.f() + lastX;
+                            y = p.f() + lastY;
                             ctx.quadraticCurveTo(c1x, c1y, x, y); // relative move
                             lastC1X = c1x;
                             lastC1Y = c1y;
@@ -446,13 +447,13 @@ public class SvgPath {
                         break;
                     case 'c':
                         do {
-                            c1x = p.f() - lastC1X;
-                            c1y = p.f() - lastC1Y;
-                            c2x = p.f() - lastC2X;
-                            c2y = p.f() - lastC2Y;
-                            x = p.f() - lastX;
-                            y = p.f() - lastY;
-                            ctx.bezierCurveTo(c1x, c1y, c2x, c2y, x, y); // move relative
+                            c1x = p.f() + lastX;
+                            c1y = p.f() + lastY;
+                            c2x = p.f() + lastX;
+                            c2y = p.f() + lastY;
+                            x = p.f() + lastX;
+                            y = p.f() + lastY;
+                            ctx.bezierCurveTo(c1x, c1y, c2x, c2y, x, y);
                             lastC1X = c1x;
                             lastC1Y = c1y;
                             lastC2X = c2x;
@@ -462,31 +463,52 @@ public class SvgPath {
                         } while (p.nextIsNumber());
                         elementCount++;
                         break;
-                /*
-                case 'S':
-                    do {
-                        ctx.bezierCurveToSmooth(p.f(), p.f(), p.f(), p.f());
-                    } while (p.nextIsNumber());
-                    elementCount++;
-                    break;
-                case 's':
-                    do {
-                        ctx.bezierCurveToSmoothRel(p.f(), p.f(), p.f(), p.f());
-                    } while (p.nextIsNumber());
-                    elementCount++;
-                    break;
-                    */
+                    case 'S':
+                        do {
+                            c1x = lastX * 2.0d - lastC2X;
+                            c1y = lastY * 2.0d - lastC2Y;
+                            c2x = p.f();
+                            c2y = p.f();
+                            x = p.f();
+                            y = p.f();
+                            ctx.bezierCurveTo(c1x, c1y, c2x, c2y, x, y);
+                            lastC1X = c1x;
+                            lastC1Y = c1y;
+                            lastC2X = c2x;
+                            lastC2Y = c2y;
+                            lastX = x;
+                            lastY = y;
+                        } while (p.nextIsNumber());
+                        elementCount++;
+                        break;
+                    case 's':
+                        do {
+                            c1x = lastX * 2.0d - lastC2X;
+                            c1y = lastY * 2.0d - lastC2Y;
+                            c2x = p.f() + lastX;
+                            c2y = p.f() + lastY;
+                            x = p.f() + lastX;
+                            y = p.f() + lastY;
+                            ctx.bezierCurveTo(c1x, c1y, c2x, c2y, x, y);
+                            lastC1X = c1x;
+                            lastC1Y = c1y;
+                            lastC2X = c2x;
+                            lastC2Y = c2y;
+                            lastX = x;
+                            lastY = y;
+                        } while (p.nextIsNumber());
+                        elementCount++;
+                        break;
                     case 'A':
                         do {
                             rx = p.f();
                             ry = p.f();
-                            a = p.a();
+                            a = p.f();
                             largeArcFlag = p.b();
                             sweepFlag = p.b();
                             x = p.f();
                             y = p.f();
-                            //ctx.arcTo(rx, ry, a, largeArcFlag, sweepFlag, x, y);
-                            ctx.arc(x, y, rx, ry, 0, a);
+                            drawArcTo(ctx, lastX, lastY, rx, ry, a, x, y, largeArcFlag, sweepFlag);
                             lastX = x;
                             lastY = y;
                         } while (p.nextIsNumber());
@@ -496,15 +518,14 @@ public class SvgPath {
                         do {
                             rx = p.f();
                             ry = p.f();
-                            a = p.a();
+                            a = p.f();
                             largeArcFlag = p.b();
                             sweepFlag = p.b();
-                            x = p.f() - lastX;
-                            y = p.f() - lastY;
-                            ctx.arc(x, y, rx, ry, 0, a); // move relative
+                            x = p.f() + lastX;
+                            y = p.f() + lastY;
+                            drawArcTo(ctx, lastX, lastY, rx, ry, a, x, y, largeArcFlag, sweepFlag);
                             lastX = x;
                             lastY = y;
-
                         } while (p.nextIsNumber());
                         elementCount++;
                         break;
@@ -559,8 +580,6 @@ public class SvgPath {
         }
 
         public double f() { return getDouble(); }
-
-        public double a() { return Math.toRadians(getDouble()); }
 
         public double getDouble() {
             int start  = toNextNonWsp();
@@ -643,5 +662,100 @@ public class SvgPath {
             }
             return pos;
         }
+    }
+
+    private static void drawArcTo(
+            final GraphicsContext ctx,
+            final double x0, final double y0,
+            final double radiusX, final double radiusY,
+            final double xAxisRotation,
+            final double x, final double y,
+            final boolean largeArcFlag, final boolean sweepFlag) {
+
+        // Compute the half distance between the current and the final point
+        final double dx2 = (x0 - x) / 2.0;
+        final double dy2 = (y0 - y) / 2.0;
+        // Convert angle from degrees to radians
+        final double xAxisRotationR = Math.toRadians(xAxisRotation);
+        final double cosAngle = Math.cos(xAxisRotationR);
+        final double sinAngle = Math.sin(xAxisRotationR);
+
+        //
+        // Step 1 : Compute (x1, y1)
+        //
+        final double x1 = ( cosAngle * dx2 + sinAngle * dy2);
+        final double y1 = (-sinAngle * dx2 + cosAngle * dy2);
+        // Ensure radii are large enough
+        double rx = Math.abs(radiusX);
+        double ry = Math.abs(radiusY);
+        double Prx = rx * rx;
+        double Pry = ry * ry;
+        final double Px1 = x1 * x1;
+        final double Py1 = y1 * y1;
+        // check that radii are large enough
+        final double radiiCheck = Px1/Prx + Py1/Pry;
+        if (radiiCheck > 1.0) {
+            rx = Math.sqrt(radiiCheck) * rx;
+            ry = Math.sqrt(radiiCheck) * ry;
+            if (Double.isNaN(rx) || Double.isNaN(ry)) {
+                ctx.lineTo(x, y);
+                return;
+            }
+            Prx = rx * rx;
+            Pry = ry * ry;
+        }
+
+        //
+        // Step 2 : Compute (cx1, cy1)
+        //
+        double sign = ((largeArcFlag == sweepFlag) ? -1.0 : 1.0);
+        double sq = ((Prx*Pry)-(Prx*Py1)-(Pry*Px1)) / ((Prx*Py1)+(Pry*Px1));
+        sq = (sq < 0.0) ? 0.0 : sq;
+        final double coef = (sign * Math.sqrt(sq));
+        final double cx1 = coef * ((rx * y1) / ry);
+        final double cy1 = coef * -((ry * x1) / rx);
+
+        //
+        // Step 3 : Compute (cx, cy) from (cx1, cy1)
+        //
+        final double sx2 = (x0 + x) / 2.0;
+        final double sy2 = (y0 + y) / 2.0;
+        final double cx = sx2 + (cosAngle * cx1 - sinAngle * cy1);
+        final double cy = sy2 + (sinAngle * cx1 + cosAngle * cy1);
+
+        //
+        // Step 4 : Compute the angleStart (angle1) and the angleExtent (dangle)
+        //
+        final double ux = (x1 - cx1) / rx;
+        final double uy = (y1 - cy1) / ry;
+        final double vx = (-x1 - cx1) / rx;
+        final double vy = (-y1 - cy1) / ry;
+        // Compute the angle start
+        double n = Math.sqrt((ux * ux) + (uy * uy));
+        double p = ux; // (1 * ux) + (0 * uy)
+        sign = ((uy < 0.0) ? -1.0 : 1.0);
+        double angleStart = Math.toDegrees(sign * Math.acos(p / n));
+
+        // Compute the angle extent
+        n = Math.sqrt((ux * ux + uy * uy) * (vx * vx + vy * vy));
+        p = ux * vx + uy * vy;
+        sign = ((ux * vy - uy * vx < 0.0) ? -1.0 : 1.0);
+        double angleExtent = Math.toDegrees(sign * Math.acos(p / n));
+        if (!sweepFlag && (angleExtent > 0)) {
+            angleExtent -= 360.0;
+        } else if (sweepFlag && (angleExtent < 0)) {
+            angleExtent += 360.0;
+        }
+        angleExtent = angleExtent % 360;
+        angleStart = angleStart % 360;
+
+        Affine a = new Affine();
+        a.appendRotation(xAxisRotation, cx, cy);
+        Affine ar = new Affine();
+        ar.appendRotation(-xAxisRotation, cx, cy);
+
+        ctx.transform(a);
+        ctx.arc(cx, cy, rx, ry, -angleStart, -angleExtent);
+        ctx.transform(ar);
     }
 }
