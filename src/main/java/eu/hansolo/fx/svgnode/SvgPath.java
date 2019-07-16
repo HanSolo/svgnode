@@ -42,8 +42,8 @@ public class SvgPath {
     private ObjectProperty<Paint>          fill;
     private Paint                          _stroke;
     private ObjectProperty<Paint>          stroke;
-    private double                         _strokeWidth;
-    private DoubleProperty                 strokeWidth;
+    private double                         _lineWidth;
+    private DoubleProperty                 lineWidth;
     private FillRule                       _fillRule;
     private ObjectProperty<FillRule>       fillRule;
     private Effect                         _effect;
@@ -61,11 +61,11 @@ public class SvgPath {
     public SvgPath() {
         this("", Color.BLACK, Color.BLACK, 1.0, FillRule.NON_ZERO, null, true);
     }
-    public SvgPath(final String path, final Paint fill, final Paint stroke, final double strokeWidth, final FillRule fillRule, final Effect effect, final boolean visible) {
+    public SvgPath(final String path, final Paint fill, final Paint stroke, final double lineWidth, final FillRule fillRule, final Effect effect, final boolean visible) {
         _path        = path;
         _fill        = fill;
         _stroke      = stroke;
-        _strokeWidth = Helper.clamp(0, Double.MAX_VALUE, strokeWidth);
+        _lineWidth   = Helper.clamp(0, Double.MAX_VALUE, lineWidth);
         _fillRule    = fillRule;
         _effect      = effect;
         _visible     = visible;
@@ -142,27 +142,27 @@ public class SvgPath {
         return stroke;
     }
 
-    public double getStrokeWidth() { return null == strokeWidth ? _strokeWidth : strokeWidth.get(); }
-    public void setStrokeWidth(final double strokeWidth) {
-        if (null == this.strokeWidth) {
-            _strokeWidth = Helper.clamp(0, Double.MAX_VALUE, strokeWidth);
+    public double getLineWidth() { return null == lineWidth ? _lineWidth : lineWidth.get(); }
+    public void setLineWidth(final double lineWidth) {
+        if (null == this.lineWidth) {
+            _lineWidth = Helper.clamp(0, Double.MAX_VALUE, lineWidth);
             dirty.set(true);
         } else {
-            this.strokeWidth.set(strokeWidth);
+            this.lineWidth.set(lineWidth);
         }
     }
-    public DoubleProperty strokeWidthProperty() {
-        if (null == strokeWidth) {
-            strokeWidth = new DoublePropertyBase(_strokeWidth) {
+    public DoubleProperty lineWidthProperty() {
+        if (null == lineWidth) {
+            lineWidth = new DoublePropertyBase(_lineWidth) {
                 @Override protected void invalidated() {
                     set(Helper.clamp(0, Double.MAX_VALUE, get()));
                     dirty.set(true);
                 }
                 @Override public Object getBean() { return SvgPath.this; }
-                @Override public String getName() { return "strokeWidth"; }
+                @Override public String getName() { return "lineWidth"; }
             };
         }
-        return strokeWidth;
+        return lineWidth;
     }
 
     public FillRule getFillRule() { return null == fillRule ? _fillRule : fillRule.get(); }
@@ -272,7 +272,7 @@ public class SvgPath {
         }
         return lineCap;
     }
-
+    
     public void draw(final GraphicsContext ctx) {
         if (isVisible()) {
 
@@ -281,8 +281,9 @@ public class SvgPath {
             ctx.setEffect(getEffect());
             ctx.setLineJoin(getLineJoin());
             ctx.setLineCap(getLineCap());
-            ctx.setFill(getFill());
+            ctx.setLineWidth(getLineWidth());
             ctx.setStroke(getStroke());
+            ctx.setFill(getFill());
             ctx.beginPath();
 
             SVGParser p = new SVGParser(getPath());
