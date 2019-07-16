@@ -62,8 +62,8 @@ public class SvgPathBuilder<B extends SvgPathBuilder<B>> {
         return (B)this;
     }
 
-    public final B strokeWidth(final double strokeWidth) {
-        properties.put("strokeWidth", new SimpleDoubleProperty(strokeWidth));
+    public final B lineWidth(final double strokeWidth) {
+        properties.put("lineWidth", new SimpleDoubleProperty(strokeWidth));
         return (B)this;
     }
 
@@ -102,7 +102,7 @@ public class SvgPathBuilder<B extends SvgPathBuilder<B>> {
             } else if ("stroke".equals(key)) {
                 svgPath.setStroke(((ObjectProperty<Paint>) properties.get(key)).get());
             } else if ("lineWidth".equals(key)) {
-                svgPath.setStrokeWidth(((DoubleProperty) properties.get(key)).get());
+                svgPath.setLineWidth(((DoubleProperty) properties.get(key)).get());
             } else if ("fillRule".equals(key)) {
                 svgPath.setFillRule(((ObjectProperty<FillRule>) properties.get(key)).get());
             } else if ("effect".equals(key)) {
